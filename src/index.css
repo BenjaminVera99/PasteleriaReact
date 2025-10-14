@@ -18,6 +18,45 @@ html, body {
   margin: 0;
 }
 
+
+.bg-pink   { background-color: var(--pink) !important; }
+.bg-brown  { background-color: var(--brown) !important; }
+.text-choco{ color: var(--choco) !important; }
+.border-brown { border: 4px solid var(--brown) !important; }
+
+.btn-white-choco{
+  background: #fff;
+  color: var(--brown);
+  border: 2px solid var(--brown);
+  font-weight: 700;
+  border-radius: 10px;
+  transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
+}
+.btn-white-choco:hover{
+  background: var(--pink-weak);
+  color: var(--brown);
+  transform: translateY(-1px);
+}
+
+.brand-title{
+  font-family: "Pacifico", cursive;
+  font-size: 1.25rem;
+  color: var(--choco);
+}
+.navlink{
+  text-decoration: none;
+  color: var(--choco);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
+}
+.navlink:hover{
+  background: var(--pink-weak);
+  color: var(--brown);
+  transform: translateY(-1px);
+}
+
 #bannerArriba {
   position: sticky;
   top: 0;
@@ -31,13 +70,13 @@ html, body {
 
   display: flex;
   align-items: center;
-  justify-content: space-between; 
+  justify-content: space-between;
   gap: 14px;
-  flex-wrap: wrap; 
-  font-family: "Pacifico", cursive; 
+  flex-wrap: wrap;
+  font-family: "Pacifico", cursive;
 }
 
-.nav1, .nav2 {
+.nav1, .nav2{
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -47,25 +86,19 @@ html, body {
   width: auto;
   padding: 0;
 }
+.nav1{ flex: 1 1 auto; }
+.nav2{ flex: 0 0 auto; }
 
-.nav1 {
-  flex: 1 1 auto;
-}
-
-.nav2 {
-  flex: 0 0 auto;
-}
-
-.logo {
+.logo{
   height: 48px;
   width: auto;
   border-radius: 10px;
   background: transparent;
   transition: transform 160ms ease;
 }
-.logo:hover { transform: scale(1.04); }
+.logo:hover{ transform: scale(1.04); }
 
-#bannerArriba a {
+#bannerArriba a{
   text-decoration: none;
   color: var(--choco);
   font-weight: 700;
@@ -74,19 +107,17 @@ html, body {
   transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
   outline: none;
 }
-
-#bannerArriba a:hover {
+#bannerArriba a:hover{
   background: var(--pink-weak);
   color: var(--brown);
   transform: translateY(-1px);
 }
-
-#bannerArriba a:focus-visible {
+#bannerArriba a:focus-visible{
   outline: 3px dashed var(--brown);
   outline-offset: 3px;
 }
 
-.nav2 img {
+.nav2 img{
   height: 22px;
   width: 22px;
   display: inline-block;
@@ -94,11 +125,11 @@ html, body {
   background: transparent;
 }
 
-.nav2 a[href="/carrito"] {
+.nav2 a[href="/carrito"]{
   position: relative;
   padding-right: 36px;
 }
-.nav2 a[href="/carrito"]::after {
+.nav2 a[href="/carrito"]::after{
   content: attr(data-count);
   display: inline-flex;
   align-items: center;
@@ -116,55 +147,55 @@ html, body {
   right: -10px;
   box-shadow: 0 2px 6px rgba(0,0,0,.2);
 }
-
-.nav2 a[href="/carrito"][data-count="0"]::after {
+.nav2 a[href="/carrito"][data-count="0"]::after{
   display: none;
 }
 
-@media (max-width: 768px) {
-  #bannerArriba {
+@media (max-width: 768px){
+  #bannerArriba{
     justify-content: center;
     gap: 10px 14px;
   }
-  .nav1, .nav2 {
+  .nav1, .nav2{
     flex: 1 1 100%;
     justify-content: center;
     flex-wrap: wrap;
   }
-  #bannerArriba a {
+  #bannerArriba a{
     padding: 10px 12px;
   }
 }
 
-/* css del home osea la info texto etc */
+/* aca el body nose la foto y texto */
 
-#portadaFoto {
+#portadaFoto{
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   gap: 15px;
   background-color: var(--cream);
 }
 
-.imagen {
+.imagen{
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
-.imagen img {
+.imagen img{
   width: 320px;
   max-width: 90%;
   height: auto;
-
 }
+
 
 #portadaFoto h3 {
   color: var(--choco);
   font-family: 'Pacifico', cursive;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 2vw + 1rem, 2rem);
   margin-top: 10px;
+  line-height: 1.4;
+  max-width: 600px;
 }

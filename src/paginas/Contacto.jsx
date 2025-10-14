@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../assets/Imagenes/Mil Sabores.png'
-import carrito from '../assets/Imagenes/shopping_bag_24dp_8B4513_FILL0_wght400_GRAD0_opsz24.png'
+import '../Contacto.css'  
 import Footer from '../componentes/Footer'
+import Navbar from '../componentes/Navbar'
+
 
 export default function Contacto() {
   const [nombre, setNombre] = useState('')
@@ -21,23 +22,7 @@ export default function Contacto() {
 
   return (
     <>
-      <section id="bannerArriba">
-        <nav className="nav1">
-          <img src={logo} alt="Pastelería Mil Sabores Logo" className="logo" />
-          <Link to="/">Home</Link>
-          <Link to="/about">Sobre Nosotros</Link>
-          <Link to="/contacto">Contacto</Link>
-          <Link to="/catalogo">Catálogo</Link>
-        </nav>
-        <nav className="nav2">
-          <Link to="/carrito">
-            <img src={carrito} alt="Carrito" />
-          </Link>
-          <Link to="/carrito">Carrito de Compras</Link>
-          <Link to="/login">Iniciar Sesión</Link>
-          <Link to="/registro">Crear Perfil</Link>
-        </nav>
-      </section>
+      <Navbar />
 
       <section id="contacto">
         <h1>Contacto</h1>
@@ -52,14 +37,16 @@ export default function Contacto() {
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         ></iframe>
+        <br />
         <p><strong>Dirección:</strong> Av. Dulce 123, Santiago, Chile</p>
         <p><strong>Teléfono:</strong> +56 2 1234 5678</p>
         <p><strong>Email:</strong> contacto@milsabores.cl</p>
-        <p>¡Contáctanos directamente a través de este formulario!</p>
+        <br />
+        <h2>¡Contáctanos directamente a través de este formulario!</h2>
       </section>
 
       <section className="cajaContacto">
-        {enviado && <p style={{ color: 'green', textAlign: 'center' }}>¡Mensaje enviado correctamente!</p>}
+        {enviado && <div className="alerta-exito">¡Mensaje enviado correctamente!</div>}
         <form id="formularioContacto" onSubmit={handleSubmit}>
           <h2>Envíanos un Mensaje</h2>
           <div className="row">
