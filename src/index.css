@@ -2,100 +2,120 @@
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 
-*{
-  background-color: #FFF5E1;  
-}
-
 #bannerArriba {
-    font-family: "Pacifico", cursive;
-    font-weight: 400;
-    font-style: normal;
-  
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--pink);
+  border: 4px solid var(--brown);
+  border-radius: 12px;
+  margin: 10px;
+  padding: 10px 16px;
+  box-shadow: 0 6px 18px rgba(93, 64, 55, 0.15);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  gap: 14px;
+  flex-wrap: wrap; 
+  font-family: "Pacifico", cursive; 
 }
 
-body {
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    color: #5D4037;
-}
-
-#bannerArriba{
-    display: flex;
-    
-}
-
-.logo {
-    height: 55px;
+.nav1, .nav2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: transparent;
+  border: none;
+  height: auto;
+  width: auto;
+  padding: 0;
 }
 
 .nav1 {
-    width: 100%;
-    display: flex;
-    justify-content:  center;
-    border-top: 4px #8B4513  solid;
-    border-left: 4px #8B4513  solid;
-    border-bottom: 4px #8B4513  solid;
-    border-radius: 8px;
-    height: 7vh;
-    align-items: center;
-    column-gap: 2rem;
-    background-color: #FFC0CB;
+  flex: 1 1 auto;
 }
 
 .nav2 {
-    width: 100%;
-    display: flex;
-    justify-content: center ;
-    border-right: 4px #8B4513  solid;
-    border-top: 4px #8B4513  solid;
-    border-bottom: 4px #8B4513  solid;
-    border-radius: 8px;
-    height: 7vh;
-    align-items: center;
-    column-gap: 2rem;
-    background-color: #FFC0CB;
+  flex: 0 0 auto;
 }
 
-img{
-    background-color: #FFC0CB;
+.logo {
+  height: 48px;
+  width: auto;
+  border-radius: 10px;
+  background: transparent;
+  transition: transform 160ms ease;
+}
+.logo:hover { transform: scale(1.04); }
+
+#bannerArriba a {
+  text-decoration: none;
+  color: var(--choco);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
+  outline: none;
 }
 
-a{
-    text-decoration: none;
-    color: #5D4037;
-    background-color: #FFC0CB;
-
+#bannerArriba a:hover {
+  background: var(--pink-weak);
+  color: var(--brown);
+  transform: translateY(-1px);
 }
 
-a:hover{
-    color: blueviolet;
+#bannerArriba a:focus-visible {
+  outline: 3px dashed var(--brown);
+  outline-offset: 3px;
 }
 
-#portadaFoto{
-    display: flex;
+.nav2 img {
+  height: 22px;
+  width: 22px;
+  display: inline-block;
+  vertical-align: middle;
+  background: transparent;
+}
+
+.nav2 a[href="/carrito"] {
+  position: relative;
+  padding-right: 36px;
+}
+.nav2 a[href="/carrito"]::after {
+  content: attr(data-count);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--brown);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+.nav2 a[href="/carrito"][data-count="0"]::after {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #bannerArriba {
     justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-#portadaFoto > h3 {
-    text-align: center;
-    color: #5D4037;
-   
-}
-
-
-.imagen {
-    background-image: url(Imagenes/Mil\ Sabores.png);
-    width: 350px;
-    height: 350px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    margin-top: 20px;
-
-}
-
-h2, p {
-    text-align: center;
+    gap: 10px 14px;
+  }
+  .nav1, .nav2 {
+    flex: 1 1 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  #bannerArriba a {
+    padding: 10px 12px;
+  }
 }
