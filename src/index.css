@@ -2,6 +2,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 
+:root{
+  --cream: #FFF5E1;
+  --pink: #FFC0CB;
+  --brown: #8B4513;
+  --choco: #5D4037;
+  --pink-weak: #ffd3dc;
+  --pink-strong: #ffb2c1;
+}
+
+html, body {
+  background-color: var(--cream);
+  color: var(--choco);
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+}
+
 #bannerArriba {
   position: sticky;
   top: 0;
@@ -118,4 +134,37 @@
   #bannerArriba a {
     padding: 10px 12px;
   }
+}
+
+/* css del home osea la info texto etc */
+
+#portadaFoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 15px;
+  background-color: var(--cream);
+}
+
+.imagen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.imagen img {
+  width: 320px;
+  max-width: 90%;
+  height: auto;
+
+}
+
+#portadaFoto h3 {
+  color: var(--choco);
+  font-family: 'Pacifico', cursive;
+  font-size: 1.5rem;
+  margin-top: 10px;
 }

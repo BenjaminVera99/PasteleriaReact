@@ -8,13 +8,12 @@ export default function Navbar({ cartCount = 0 }) {
       <nav className="nav1">
         <Link to="/"><img src={logo} alt="Pastelería Mil Sabores" className="logo" /></Link>
         <Link to="/">Home</Link>
-        <Link to="/about">Sobre Nosotros</Link>
         <Link to="/contacto">Contacto</Link>
         <Link to="/catalogo">Catálogo</Link>
       </nav>
 
       <nav className="nav2">
-        <Link to="/carrito">
+        <Link to="/carrito" data-count={cartCount}>
           <img src="https://img.icons8.com/ios/50/shopping-bag.png" alt="Carrito" />
           Carrito {cartCount > 0 ? `(${cartCount})` : ""}
         </Link>

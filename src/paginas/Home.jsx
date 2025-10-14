@@ -1,9 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../assets/Imagenes/Mil Sabores.png'
-import carrito from '../assets/Imagenes/shopping_bag_24dp_8B4513_FILL0_wght400_GRAD0_opsz24.png'
 import Footer from '../componentes/Footer'
 import Navbar from '../componentes/Navbar'
+import portada from '../assets/imagenes/Mil Sabores.png'
 
 export default function Home() {
   return (
@@ -11,7 +10,7 @@ export default function Home() {
       <Navbar />
       <section id="portadaFoto">
         <div className="imagen">
-          
+          <img src={portada} alt="Pastelería Mil Sabores" />
         </div>
         <h3>"50 años endulzando Chile con sabor y cariño"</h3>
       </section>
