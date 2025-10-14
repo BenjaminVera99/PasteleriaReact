@@ -1,0 +1,141 @@
+#Formularios {
+  padding: 32px 20px;
+}
+
+#IniciarSesion {
+  background: #fff;
+  border: 4px solid var(--brown);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(93, 64, 55, 0.12);
+  max-width: 520px;
+  margin: 0 auto 40px;
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+
+#IniciarSesion h1 {
+  font-family: "Pacifico", cursive;
+  color: var(--choco);
+  text-align: center;
+  font-size: clamp(1.4rem, 1.2vw + 1rem, 2rem);
+  margin: 4px 0 8px;
+}
+
+#IniciarSesion .row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px;
+  margin: 0;
+}
+
+
+#IniciarSesion label {
+  font-weight: 800;
+  color: var(--choco);
+  margin-bottom: 2px;
+}
+
+.input-control.form-control {
+  border: 2px solid var(--brown);
+  border-radius: 10px;
+  color: var(--choco);
+  background: #fff;
+  height: 44px;
+  padding: 10px 12px;
+  box-shadow: none;
+}
+.input-control.form-control:focus {
+  border-color: var(--brown);
+  box-shadow: 0 0 0 4px var(--pink-weak);
+}
+
+#IniciarSesion input::placeholder {
+  color: rgba(93, 64, 55, 0.6);
+}
+
+.password-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+
+.password-group .btn.toggle-password {
+  border: 2px solid var(--brown);
+  color: var(--brown);
+  background: #fff;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  box-shadow: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: 0;
+}
+.password-group .btn.toggle-password:hover {
+  background: var(--pink-weak);
+  color: var(--choco);
+}
+
+.btn-outline-brown {
+  border-color: var(--brown);
+  color: var(--brown);
+  background: #fff;
+}
+.btn-outline-brown:hover {
+  background: var(--pink-weak);
+  color: var(--choco);
+  border-color: var(--brown);
+}
+
+.error-alert {
+  background-color: var(--pink-weak);
+  border: 2px solid var(--brown);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+  color: var(--brown);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.15);
+  animation: loginFadeIn .4s ease-out;
+}
+
+@keyframes loginFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#IniciarSesion button[type="submit"] {
+  width: 100%;
+  height: 46px;
+  border: 2px solid var(--brown);
+  background: #fff;
+  color: var(--brown);
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
+}
+#IniciarSesion button[type="submit"]:hover {
+  background: var(--pink-weak);
+  transform: translateY(-1px);
+}
+
+#IniciarSesion .link-registro {
+  text-align: center;
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--choco);
+  font-weight: 700;
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+#IniciarSesion .link-registro:hover {
+  background: var(--pink-weak);
+  color: var(--brown);
+}
