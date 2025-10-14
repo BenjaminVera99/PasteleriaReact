@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../assets/Imagenes/Mil Sabores.png'
 import carrito from '../assets/Imagenes/shopping_bag_24dp_8B4513_FILL0_wght400_GRAD0_opsz24.png'
+import Navbar from '../componentes/Navbar'
 
 
 
@@ -22,24 +23,7 @@ function InicioSesion() {
 
    return (
     <>
-      <section id="bannerArriba">
-        <nav className="nav2">
-          <img src={logo} alt="Pastelería Mil Sabores Logo" className="logo" />
-          <Link to="/login">Iniciar Sesión</Link>
-          <Link to="/registro">Crear Perfil</Link>
-        </nav>
-
-        <nav className="nav1">
-          <Link to="/">Home</Link>
-          <Link to="/about">Sobre Nosotros</Link>
-          <Link to="/contacto">Contacto</Link>
-          <Link to="/catalogo">Catálogo</Link>
-          <Link to="/carrito">
-            <img src={carrito} alt="Carrito" />
-          </Link>
-          <Link to="/carrito">Carrito de Compras</Link>
-        </nav>
-      </section>
+      <Navbar />
 
       <section id="Formularios">
         <form id="IniciarSesion" onSubmit={handleSubmit}>
@@ -71,6 +55,7 @@ function InicioSesion() {
           </Link>
         </form>
       </section>
+      
     </>
   )
 }

@@ -10,7 +10,9 @@ export default function Home() {
     <>
       <Navbar />
       <section id="portadaFoto">
-        <div className="imagen"></div>
+        <div className="imagen">
+          
+        </div>
         <h3>"50 años endulzando Chile con sabor y cariño"</h3>
       </section>
 

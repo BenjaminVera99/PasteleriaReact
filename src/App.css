@@ -87,7 +87,7 @@ a:hover{
 
 
 .imagen {
-    background-image: url(Imagenes/Mil\ Sabores.png);
+    background-image: url(assets/imagenes/Mil\ Sabores.png);
     width: 350px;
     height: 350px;
     background-size: contain;
