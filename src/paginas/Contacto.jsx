@@ -22,7 +22,7 @@ export default function Contacto() {
 
   return (
     <>
-      <Navbar />
+      <Navbar/>
 
       <section id="contacto">
         <h1>Contacto</h1>

@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../componentes/Navbar'
-import '../Registrarse.css'
+import '../Registrarse.css'   // Asegúrate que el archivo se llame exactamente "Registro.css"
 
-function Registrarse() {
+export default function Registrarse() {
   const [nombres, setNombres] = useState('')
   const [apellidos, setApellidos] = useState('')
   const [email, setEmail] = useState('')
@@ -17,7 +17,6 @@ function Registrarse() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
     if (!nombres || !apellidos || !email || !password1 || !password2 || !fechaNac) {
       setError('Por favor completa todos los campos (incluida la fecha de nacimiento)')
       return
@@ -31,9 +30,8 @@ function Registrarse() {
       setError('Las contraseñas no coinciden')
       return
     }
-
     setError('')
-    console.log('Formulario de registro válido', { nombres, apellidos, email, fechaNac, password1 })    // TODO: enviar al backend
+    console.log('Registro OK', { nombres, apellidos, email, fechaNac, password1 })
   }
 
   return (
@@ -180,5 +178,3 @@ function Registrarse() {
     </>
   )
 }
-
-export default Registrarse

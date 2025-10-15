@@ -1,0 +1,132 @@
+/* Tarjetas y look pastel reutilizan tu paleta */
+.pastel-card {
+  border: 4px solid var(--brown);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(93,64,55,.12);
+}
+
+/* Lista de items */
+.carrito-items {
+  display: grid;
+  gap: 12px;
+}
+.carrito-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 2px solid var(--brown);
+  border-radius: 12px;
+  background: #fff;
+}
+.carrito-item__info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.carrito-thumb {
+  width: 64px;
+  min-width: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--pink-weak);
+  border: 2px solid var(--brown);
+}
+.carrito-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.carrito-data .text-choco-weak { opacity: .8; }
+
+.carrito-item__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.qty-group .qty {
+  display: inline-flex;
+  min-width: 36px;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  color: var(--choco);
+  border: 2px solid var(--brown);
+  border-radius: 8px;
+  height: 38px;
+}
+.btn-white-choco,
+.btn-outline-brown {
+  border-radius: 10px;
+}
+
+/* Preferencias de entrega */
+.envio {
+  border: 2px solid var(--brown);
+  border-radius: 12px;
+  padding: 10px;
+}
+.envio legend {
+  padding: 0 6px;
+}
+
+/* Totales */
+.carrito-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px dashed var(--brown);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 800;
+  color: var(--choco);
+}
+.carrito-precio-total { font-size: 1.1rem; }
+
+/* Carrito vacío */
+.carrito-vacio { opacity: .8; }
+
+/* Timeline */
+.timeline { margin-top: 6px; }
+.bar {
+  position: relative;
+  height: 8px;
+  background: var(--pink-weak);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px solid var(--brown);
+}
+.barraProgreso {
+  height: 100%;
+  width: 0%;
+  background: var(--brown);
+  transition: width .8s ease;
+}
+.barraProgreso.stage-1 { width: 33%; }
+.barraProgreso.stage-2 { width: 66%; }
+.barraProgreso.stage-3 { width: 100%; }
+
+.marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 16px;
+  width: 16px;
+  background: #fff;
+  border: 3px solid var(--brown);
+  border-radius: 999px;
+  left: 0;
+  transition: left .8s ease;
+}
+.marker.stage-1 { left: 33%; }
+.marker.stage-2 { left: 66%; }
+.marker.stage-3 { left: 100%; }
+
+.etapas {
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  padding: 6px 2px 0;
+  margin: 0;
+  color: var(--choco);
+  font-weight: 700;
+}
+.etapas li.ok { color: var(--brown); }
