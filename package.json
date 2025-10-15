@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "test": "karma start"
+    "test": "cross-env CHROME_BIN=\"C:\\\\Program Files (x86)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\" karma start karma.conf.cjs",
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
@@ -26,6 +26,8 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
     "babel-loader": "^10.0.0",
+    "cross-env": "^10.1.0",
+    "css-loader": "^7.1.2",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
@@ -33,8 +35,10 @@
     "jasmine-core": "^5.12.0",
     "karma": "^6.4.4",
     "karma-chrome-launcher": "^3.2.0",
+    "karma-edge-launcher": "^0.4.2",
     "karma-jasmine": "^5.1.0",
     "karma-webpack": "^5.0.1",
+    "style-loader": "^4.0.0",
     "vite": "^7.1.7",
     "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
