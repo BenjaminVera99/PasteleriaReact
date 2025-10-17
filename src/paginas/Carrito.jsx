@@ -1,92 +1,100 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import Navbar from '../componentes/Navbar'
-import Footer from '../componentes/Footer'
-import { readCart, writeCart } from '../utils/cart.js'
+// src/pages/Carrito.jsx
+import React, { useEffect, useMemo, useState } from 'react';
+import Navbar from '../componentes/Navbar';
+import Footer from '../componentes/Footer';
+import { readCart, writeCart } from '../utils/cart.js';
+import { remove as removeProduct } from '../data/productos.js'; // Importamos la función remove de productos.js
+import logoUrl from '../assets/Imagenes/Mil Sabores.png';
 
 const toCLP = (n) =>
   Number(n || 0).toLocaleString('es-CL', {
     style: 'currency',
     currency: 'CLP',
     maximumFractionDigits: 0
-  })
+  });
 
 export default function Carrito() {
-  const [items, setItems] = useState([])
-  const [envio, setEnvio] = useState({ fecha: '', franja: 'Lo antes posible' })
-  const [loaded, setLoaded] = useState(false)
+  const [items, setItems] = useState([]);
+  const [envio, setEnvio] = useState({ fecha: '', franja: 'Lo antes posible' });
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setItems(readCart())
+    setItems(readCart());
     try {
-      const rawEnv = localStorage.getItem('delivery')
-      setEnvio(rawEnv ? JSON.parse(rawEnv) : { fecha: '', franja: 'Lo antes posible' })
+      const rawEnv = localStorage.getItem('delivery');
+      setEnvio(rawEnv ? JSON.parse(rawEnv) : { fecha: '', franja: 'Lo antes posible' });
     } catch {
-      setEnvio({ fecha: '', franja: 'Lo antes posible' })
+      setEnvio({ fecha: '', franja: 'Lo antes posible' });
     }
-    setLoaded(true)
-  }, [])
+    setLoaded(true);
+  }, []);
 
   useEffect(() => {
-    if (!loaded) return
-    writeCart(items)
-  }, [items, loaded])
+    if (!loaded) return;
+    writeCart(items);
+  }, [items, loaded]);
 
   const total = useMemo(
     () => items.reduce((acc, it) => acc + (Number(it.price ?? it.precio ?? 0) * Number(it.qty || 1)), 0),
     [items]
-  )
+  );
 
   const inc = (id) => {
     setItems(prev =>
       prev.map(it => it.id === id ? { ...it, qty: Number(it.qty || 1) + 1 } : it)
-    )
-  }
+    );
+  };
 
   const dec = (id) => {
     setItems(prev =>
       prev
         .map(it => it.id === id ? { ...it, qty: Math.max(1, Number(it.qty || 1) - 1) } : it)
         .filter(it => (it.qty || 1) > 0)
-    )
-  }
+    );
+  };
 
-  const remove = (id) => setItems(prev => prev.filter(it => it.id !== id))
-  const clear = () => setItems([])
+  const remove = (id) => {
+    // Eliminar del estado
+    setItems(prev => prev.filter(it => it.id !== id));
+    
+    // Eliminar del localStorage
+    removeProduct(id);
+  };
+
+  const clear = () => setItems([]);
 
   const setFecha = (fecha) => {
-    const next = { ...envio, fecha }
-    setEnvio(next)
-    localStorage.setItem('delivery', JSON.stringify(next))
-  }
+    const next = { ...envio, fecha };
+    setEnvio(next);
+    localStorage.setItem('delivery', JSON.stringify(next));
+  };
 
   const setFranja = (franja) => {
-    const next = { ...envio, franja }
-    setEnvio(next)
-    localStorage.setItem('delivery', JSON.stringify(next))
-  }
+    const next = { ...envio, franja };
+    setEnvio(next);
+    localStorage.setItem('delivery', JSON.stringify(next));
+  };
 
   const handleGenerarBoleta = async () => {
     try {
-      const { generarBoleta } = await import('../utils/boleta.js')
-      let cliente = {}
+      const { generarBoleta } = await import('../utils/boleta.js');
+      let cliente = {};
       try {
-        const rawUser = localStorage.getItem('ms_user')
-        if (rawUser) cliente = JSON.parse(rawUser)
+        const rawUser = localStorage.getItem('ms_user');
+        if (rawUser) cliente = JSON.parse(rawUser);
       } catch {}
-      const numero = String(Date.now()).slice(-8)
-      const fecha = new Date().toLocaleString('es-CL')
-      const logoUrl = new URL('../assets/Imagenes/Mil Sabores.png', import.meta.url).href
-      await generarBoleta({ numero, fecha, cliente, items, envio, total, logoUrl })
+      const numero = String(Date.now()).slice(-8);
+      const fecha = new Date().toLocaleString('es-CL');
+      await generarBoleta({ numero, fecha, cliente, items, envio, total, logoUrl });
     } catch (err) {
-      console.error('Error generando boleta:', err)
-      alert('No se pudo generar la boleta. Revisa la consola para más detalles.')
+      console.error('Error generando boleta:', err);
+      alert('No se pudo generar la boleta. Revisa la consola para más detalles.');
     }
-  }
+  };
 
   return (
     <>
       <Navbar />
-
       <main className="container py-4">
         <h1 className="text-center brand-title mb-3">Tu Carrito</h1>
 
@@ -188,5 +196,5 @@ export default function Carrito() {
 
       <Footer />
     </>
-  )
+  );
 }

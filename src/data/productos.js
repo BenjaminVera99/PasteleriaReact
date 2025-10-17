@@ -1,8 +1,6 @@
 // src/data/productos.js
-// Fuente de datos + CRUD con persistencia en localStorage
-const KEY = 'ms_products_v1'
+const KEY = 'ms_products_v1';
 
-// Nota: guardamos price como NÚMERO (CLP) y agregamos `code` para el código
 const seed = [
   { id: 1,  code: 'TC001', category: 'Tortas Cuadradas',   name: 'Torta Cuadrada de Chocolate', price: 45000,  img: '/assets/imagenes/torta-cuadrada-chocolate.jpg', onSale: false },
   { id: 2,  code: 'TC002', category: 'Tortas Cuadradas',   name: 'Torta Cuadrada de Frutas',    price: 50000,  img: '/assets/imagenes/torta-cuadrada-frutas.jpg',    onSale: false },
@@ -22,44 +20,44 @@ const seed = [
   { id:16,  code: 'TE002', category: 'Tortas Especiales',   name: 'Torta Especial de Boda',     price: 60000,  img: '/assets/imagenes/torta-especial-boda.jpg',    onSale: false },
 ]
 
-// CRUD
 function load() {
   try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : seed
+    const raw = localStorage.getItem(KEY);
+    return raw ? JSON.parse(raw) : seed;
   } catch {
-    return seed
+    return seed;
   }
 }
+
 function save(list) {
-  try { localStorage.setItem(KEY, JSON.stringify(list)) } catch {}
+  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {}
 }
 
-export function getAll() { return load() }
-export function getById(id) { return load().find(p => p.id === Number(id)) || null }
+export function getAll() { return load(); }
+export function getById(id) { return load().find(p => p.id === Number(id)) || null; }
 export function create(product) {
-  const list = load()
-  const id = list.length ? Math.max(...list.map(p => p.id)) + 1 : 1
-  const nuevo = { id, ...product }
-  save([...list, nuevo])
-  return nuevo
+  const list = load();
+  const id = list.length ? Math.max(...list.map(p => p.id)) + 1 : 1;
+  const nuevo = { id, ...product };
+  save([...list, nuevo]);
+  return nuevo;
 }
 export function update(id, patch) {
-  const list = load()
-  const i = list.findIndex(p => p.id === Number(id))
-  if (i < 0) return null
-  list[i] = { ...list[i], ...patch }
-  save(list)
-  return list[i]
+  const list = load();
+  const i = list.findIndex(p => p.id === Number(id));
+  if (i < 0) return null;
+  list[i] = { ...list[i], ...patch };
+  save(list);
+  return list[i];
 }
 export function remove(id) {
-  const list = load().filter(p => p.id !== Number(id))
-  save(list)
+  const list = load().filter(p => p.id !== Number(id));
+  save(list);
 }
 export function getByCategory(cat) {
-  if (cat === 'all') return getAll()
-  return load().filter(p => p.category === cat)
+  if (cat === 'all') return getAll();
+  return load().filter(p => p.category === cat);
 }
 export function getOffers() {
-  return load().filter(p => p.onSale)
+  return load().filter(p => p.onSale);
 }
