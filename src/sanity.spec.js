@@ -1,5 +1,5 @@
 describe('sanity', () => {
-  it('jasmine corre', () => {
-    expect(true).toBeTrue();
+  it('Jest corre correctamente', () => {
+    expect(true).toBe(true);
   });
 });
