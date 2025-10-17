@@ -1,87 +1,125 @@
-// src/pages/Carrito.test.jsx
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import Carrito from "../Carrito"; // Importa el componente Carrito
-import { BrowserRouter } from "react-router-dom"; // Asegúrate de envolver el componente con Router para la navegación
+// src/paginas/tests/Cart.spec.jsx
+import React from 'react';
+// Asegúrate de importar 'within'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import Carrito from '../Carrito';
+import { BrowserRouter } from 'react-router-dom';
+import '@testing-library/jest-dom'; // Importa jest-dom para matchers como toBeInTheDocument
 
-// Mock de localStorage
-beforeEach(() => {
-  Storage.prototype.getItem = jest.fn((key) => {
-    if (key === "cart") return JSON.stringify(mockProducts); // Mock de los productos en el carrito
-    if (key === "delivery") return JSON.stringify({ fecha: "", franja: "Lo antes posible" }); // Mock de la fecha y franja horaria
-    return null;
-  });
-  Storage.prototype.setItem = jest.fn(); // Mock para setItem
-  Storage.prototype.clear = jest.fn(); // Mock para clear
-});
-
-const mockProducts = [
+// Estado inicial simulado del carrito
+const mockProductsInitial = [
   {
     id: 1,
-    code: "T10MIL",
-    name: "Torta básica",
+    code: 'T10MIL',
+    name: 'Torta básica',
     price: 1000,
     qty: 2,
-    img: "http://example.com/imagen1.png"
+    img: 'http://example.com/imagen1.png',
   },
   {
     id: 2,
-    code: "T20CHOC",
-    name: "Torta de chocolate",
+    code: 'T20CHOC',
+    name: 'Torta de chocolate',
     price: 2000,
     qty: 1,
-    img: "http://example.com/imagen2.png"
-  }
+    img: 'http://example.com/imagen2.png',
+  },
 ];
 
-describe("Carrito", () => {
-  it("elimina un producto del carrito", async () => {
-    // Renderiza el componente Carrito dentro de un BrowserRouter
+// Estado esperado DESPUÉS de eliminar Torta básica
+const mockProductsAfterDelete = [
+  {
+    id: 2,
+    code: 'T20CHOC',
+    name: 'Torta de chocolate',
+    price: 2000,
+    qty: 1,
+    img: 'http://example.com/imagen2.png',
+  },
+];
+
+describe('Carrito', () => {
+  // Mock de localStorage ANTES de cada test
+  beforeEach(() => {
+    // Mockear getItem para devolver el estado inicial
+    Storage.prototype.getItem = jest.fn((key) => {
+      if (key === 'cart') return JSON.stringify(mockProductsInitial);
+      if (key === 'delivery') return JSON.stringify({ fecha: '', franja: 'Lo antes posible' });
+      return null;
+    });
+    // Mockear setItem para poder espiarlo
+    Storage.prototype.setItem = jest.fn();
+    Storage.prototype.clear = jest.fn();
+    // Limpiar mocks para evitar interferencias entre tests
+    jest.clearAllMocks();
+  });
+
+  it('elimina un producto del carrito', async () => {
     render(
       <BrowserRouter>
         <Carrito />
       </BrowserRouter>
     );
 
-    // Verifica que el producto "Torta básica" esté en el carrito antes de la eliminación
-    expect(screen.getByText("Torta básica")).toBeInTheDocument();
+    // 1. Verifica que ambos productos estén inicialmente
+    expect(screen.getByText('Torta básica')).toBeInTheDocument();
+    expect(screen.getByText('Torta de chocolate')).toBeInTheDocument();
 
-    // Encuentra todos los botones "Eliminar" y hace clic en el primero
-    const eliminarBtns = screen.getAllByText("Eliminar");
-    fireEvent.click(eliminarBtns[0]);
+    // 2. Encuentra la FILA de "Torta básica" para ser más específico
+    // Buscamos la celda 'Torta básica' y subimos al elemento 'tr' padre
+    const rowToDelete = screen.getByText('Torta básica').closest('tr');
+    // Si no encuentra la fila, lanza un error claro
+    if (!rowToDelete) {
+        throw new Error('No se encontró la fila del producto "Torta básica"');
+    }
 
-    // Espera que el producto "Torta básica" ya no esté en el carrito
+    // 3. Busca el botón "Eliminar" DENTRO de esa fila específica
+    // 'within' limita la búsqueda a este elemento
+    const eliminarBtn = within(rowToDelete).getByRole('button', { name: /eliminar/i });
+
+    // 4. Simula el clic
+    fireEvent.click(eliminarBtn);
+
+    // 5. Espera a que el elemento "Torta básica" DESAPAREZCA del DOM
+    // waitFor es ideal para esperar cambios asíncronos o re-renders
     await waitFor(() => {
-      expect(screen.queryByText("Torta básica")).not.toBeInTheDocument();
+      // queryByText devuelve null si no lo encuentra (ideal para .not.toBeInTheDocument)
+      expect(screen.queryByText('Torta básica')).not.toBeInTheDocument();
     });
 
-    // Verifica que el carrito se haya actualizado en localStorage (se eliminó el producto)
+    // 6. Verifica que el OTRO producto SIGA en el DOM
+    expect(screen.getByText('Torta de chocolate')).toBeInTheDocument();
+
+    // 7. Verifica que localStorage.setItem fue llamado CORRECTAMENTE
+    // El componente Carrito tiene un useEffect que llama a writeCart (que usa setItem)
+    // después de que el estado 'items' se actualiza.
     expect(localStorage.setItem).toHaveBeenCalledWith(
-      "cart",
-      JSON.stringify([mockProducts[1]]) // Solo queda el segundo producto
+      'cart',
+      JSON.stringify(mockProductsAfterDelete) // Solo debe quedar el segundo producto
     );
   });
 
-  it("vacía el carrito", () => {
+  // Test "vacía el carrito" (sin cambios, ya parece correcto)
+  it('vacía el carrito', async () => {
     render(
       <BrowserRouter>
         <Carrito />
       </BrowserRouter>
     );
 
-    // Verifica que el carrito no esté vacío al principio
-    expect(screen.getByText("Torta básica")).toBeInTheDocument();
-    expect(screen.getByText("Torta de chocolate")).toBeInTheDocument();
+    expect(screen.getByText('Torta básica')).toBeInTheDocument();
+    expect(screen.getByText('Torta de chocolate')).toBeInTheDocument();
 
-    // Encuentra y hace clic en el botón "Vaciar carrito"
-    const vaciarBtn = screen.getByText("Vaciar carrito");
+    const vaciarBtn = screen.getByRole('button', { name: /vaciar carrito/i }); // Mejor usar getByRole
     fireEvent.click(vaciarBtn);
 
-    // Verifica que el carrito esté vacío
-    expect(screen.queryByText("Torta básica")).not.toBeInTheDocument();
-    expect(screen.queryByText("Torta de chocolate")).not.toBeInTheDocument();
+    // Esperar a que los elementos desaparezcan
+    await waitFor(() => {
+        expect(screen.queryByText('Torta básica')).not.toBeInTheDocument();
+        expect(screen.queryByText('Torta de chocolate')).not.toBeInTheDocument();
+    });
 
-    // Verifica que el carrito también se haya vaciado en localStorage
-    expect(localStorage.setItem).toHaveBeenCalledWith("cart", JSON.stringify([]));
+
+    expect(localStorage.setItem).toHaveBeenCalledWith('cart', JSON.stringify([]));
   });
 });

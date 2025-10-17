@@ -1,3 +1,4 @@
+// jest.config.js
 export default {
   testEnvironment: 'jsdom',
   transform: {
@@ -6,7 +7,10 @@ export default {
   moduleFileExtensions: ['js', 'jsx'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
-    // Esto mapea todos los archivos de imagen a nuestro mock
+    // 👇 AÑADE ESTA LÍNEA 👇
+    '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
+
+    // Mantén tu mock de imágenes existente
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
 };
