@@ -1,28 +1,23 @@
-// src/paginas/Admin.jsx (versión final con Actualizar)
+// src/paginas/Admin.jsx
 import React, { useEffect, useState } from 'react'
 import Navbar from '../componentes/Navbar'
 import Footer from '../componentes/Footer'
-// Importamos la función de actualización
-import { getAllProductos, createProducto, deleteProducto, updateProducto } from '../services/productoService' 
+import { getAllProducts, createProduct, deleteProduct, updateProduct } from '../services/productoService' 
 
 export default function Admin(){
   const [items, setItems] = useState([]) 
   const [loading, setLoading] = useState(true) 
-  
-  // 💡 Nuevo Estado: Almacena el ID del producto que se está editando
   const [editingId, setEditingId] = useState(null) 
   
-  // Incluimos la 'description' y los campos category/onSale
+  // Incluimos los campos de formulario originales, aunque el backend solo espera name/price/description
   const [form, setForm] = useState({ 
     name:'', 
     price:'', 
     category:'', 
     onSale:false,
-    description: '' 
   })
 
-  // Función de utilería para mapear la descripción a los campos de formulario
-  // Esto es necesario porque tu API solo tiene 'description', no 'category'/'onSale'
+  // Función de utilería para mapear la descripción a los campos de formulario (para la edición)
   const parseDescriptionToForm = (description) => {
       const categoryMatch = description.match(/Categoría: ([^.]+)/);
       const onSaleMatch = description.match(/Oferta: (Sí|No)/);
@@ -32,11 +27,11 @@ export default function Admin(){
       };
   };
 
-
+  // Función GET: Carga los datos de la API
   const reload = async () => {
     setLoading(true)
     try {
-      const data = await getAllProductos()
+      const data = await getAllProducts()
       setItems(data)
     } catch (error) {
       console.error("Error al cargar productos desde la API:", error)
@@ -49,67 +44,70 @@ export default function Admin(){
     reload()
   }, [])
 
-
-  // 💡 Nuevo Manejador: Carga los datos de un producto al formulario para edición
-  const handleEdit = (producto) => {
-    // Usamos la función auxiliar para rellenar category y onSale
-    const { category, onSale } = parseDescriptionToForm(producto.description || '');
+  // Carga los datos del producto en el formulario
+  const handleEdit = (product) => {
+    const { category, onSale } = parseDescriptionToForm(product.description || '');
 
     setForm({ 
-        name: producto.name,
-        price: producto.price,
+        name: product.name,
+        price: product.price,
         category: category,
         onSale: onSale,
-        description: producto.description // Guardamos la descripción completa también
     })
-    setEditingId(producto.id) // Establece el ID del producto a editar
+    setEditingId(product.id)
   }
 
-  // Manejador unificado para Crear (POST) o Actualizar (PUT)
+  // Manejador POST/PUT: Crea o Actualiza
   const handleSubmit = async (e) => { 
     e.preventDefault()
 
-    // 1. Mapear datos para enviar a la API
-    const productoToSend = {
+    // Mapear datos a la estructura que espera la API de Spring Boot (name, price, description)
+    const productToSend = {
       name: form.name,
-      price: Number(form.price),
-      // Creamos la descripción completa que espera la API de Spring Boot
+      price: Number(form.price), 
+      // Construye la descripción con los campos extras
       description: `Categoría: ${form.category || 'N/A'}. Oferta: ${form.onSale ? 'Sí' : 'No'}`
     }
 
     try {
       if (editingId) {
-        // --- 2. LÓGICA DE ACTUALIZACIÓN (PUT) ---
-        await updateProducto(editingId, productoToSend)
+        // LÓGICA DE ACTUALIZACIÓN (PUT)
+        await updateProduct(editingId, productToSend)
         alert(`Producto #${editingId} actualizado con éxito.`)
       } else {
-        // --- 3. LÓGICA DE CREACIÓN (POST) ---
-        await createProducto(productoToSend) 
+        // LÓGICA DE CREACIÓN (POST)
+        await createProduct(productToSend) 
         alert(`Producto "${form.name}" creado con éxito.`)
       }
       
-      // Limpiar y resetear el estado después de la operación
-      setForm({ name:'', price:'', category:'', onSale:false, description:'' })
-      setEditingId(null) // Desactivar modo edición
-      reload() // Recargar la lista
+      // Limpiar y resetear
+      setForm({ name:'', price:'', category:'', onSale:false })
+      setEditingId(null)
+      reload()
       
     } catch (error) {
       console.error(`Error al ${editingId ? 'actualizar' : 'crear'} el producto:`, error)
-      alert(`Error al ${editingId ? 'actualizar' : 'crear'} el producto.`)
+      alert(`Error al ${editingId ? 'actualizar' : 'crear'} el producto. Revisa la consola para más detalles del Backend.`)
     }
   }
 
-  const handleDelete = async (id) => {
-    // ... (El código de handleDelete sigue siendo el mismo)
+  // Manejador DELETE: Elimina un producto
+  const handleDelete = async (id) => { 
     if (window.confirm(`¿Seguro que quieres eliminar el producto #${id}?`)) {
       try {
-        await deleteProducto(id)
-        reload()
+        await deleteProduct(id) 
+        reload() 
       } catch (error) {
         console.error("Error al eliminar el producto:", error)
         alert("Error al eliminar el producto. Verifique los logs del Backend.")
       }
     }
+  }
+  
+  // Función para cancelar la edición
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setForm({ name: '', price: '', category: '', onSale: false });
   }
 
   // --- Lógica de Renderizado ---
@@ -119,7 +117,7 @@ export default function Admin(){
       <main className="container py-4">
         <h1 className="brand-title mb-3">Panel Administrativo</h1>
 
-        {/* Formulario unificado para Creación/Edición */}
+        {/* Formulario de Creación/Edición */}
         <form className="card pastel-card p-3 mb-3" onSubmit={handleSubmit}>
           <h2 className="h5 text-choco mb-3">{editingId ? `Editando Producto #${editingId}` : 'Crear Nuevo Producto'}</h2>
           
@@ -139,12 +137,11 @@ export default function Admin(){
             </div>
           </div>
           <div className="d-flex gap-2 mt-2">
-             {/* El texto del botón cambia según el modo */}
              <button type="submit" className="btn btn-white-choco">
                  {editingId ? 'Guardar Cambios' : 'Crear Producto'}
              </button>
              {editingId && (
-                <button type="button" className="btn btn-outline-secondary" onClick={() => setEditingId(null) && setForm({ name:'', price:'', category:'', onSale:false, description:'' })}>
+                <button type="button" className="btn btn-outline-secondary" onClick={handleCancelEdit}>
                     Cancelar Edición
                 </button>
              )}
@@ -169,14 +166,12 @@ export default function Admin(){
                       <td>${p.price}</td>
                       <td>{p.description}</td> 
                       <td>
-                        {/* Botón de Edición (llama a handleEdit) */}
                         <button 
                             className="btn btn-outline-brown btn-sm me-2" 
                             onClick={()=>handleEdit(p)}
                         >
                             Editar
                         </button>
-                        {/* Botón de Eliminación (llama a handleDelete) */}
                         <button 
                             className="btn btn-outline-danger btn-sm" 
                             onClick={()=>handleDelete(p.id)}
