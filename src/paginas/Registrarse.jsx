@@ -1,9 +1,14 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../componentes/Navbar'
-import '../Registrarse.css'   // Asegúrate que el archivo se llame exactamente "Registro.css"
+import '../Registrarse.css'
+import { registerUser } from '../services/authService'
 
 export default function Registrarse() {
+
+  const navigate = useNavigate()
+
+  // Campos visibles del formulario
   const [nombres, setNombres] = useState('')
   const [apellidos, setApellidos] = useState('')
   const [email, setEmail] = useState('')
@@ -13,26 +18,51 @@ export default function Registrarse() {
 
   const [showPass1, setShowPass1] = useState(false)
   const [showPass2, setShowPass2] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!nombres || !apellidos || !email || !password1 || !password2 || !fechaNac) {
-      setError('Por favor completa todos los campos (incluida la fecha de nacimiento)')
-      return
-    }
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    if (!emailOk) {
-      setError('Ingresa un correo válido')
-      return
-    }
-    if (password1 !== password2) {
-      setError('Las contraseñas no coinciden')
-      return
-    }
-    setError('')
-    console.log('Registro OK', { nombres, apellidos, email, fechaNac, password1 })
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  // 👉 FUNCIÓN DE ENVÍO DEL FORMULARIO
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!nombres || !apellidos || !email || !password1 || !password2 || !fechaNac) {
+    setError('Por favor complete todos los campos');
+    return;
   }
+
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!emailOk) {
+    setError('Ingresa un @ al correo');
+    return;
+  }
+
+  if (password1 !== password2) {
+    setError('Las contraseñas no coinciden');
+    return;
+  }
+
+  try {
+    setError('');
+
+    // 🔥 1) Registrar usuario en Spring Boot
+    await registerUser(email, password1);
+
+    // 🔥 2) Login automático
+    const token = await loginRequest(email, password1);
+
+    // 🔥 3) Guardar token
+    localStorage.setItem("token", token);
+
+    // 🔥 4) Redirigir al Home ya logueado
+    navigate("/");
+
+  } catch (err) {
+    setError("Hubo un error al registrar el usuario");
+  }
+};
+
+
 
   return (
     <>
@@ -42,58 +72,43 @@ export default function Registrarse() {
         <form id="Registrarse" onSubmit={handleSubmit} noValidate>
           <h1>Registrarse</h1>
 
+          {/* CAMPOS DEL FORMULARIO */}
           <div className="row">
             <label htmlFor="nombres">Nombres</label>
-            <input
-              type="text"
-              id="nombres"
-              className="form-control input-control"
+            <input type="text" id="nombres" className="form-control input-control"
               placeholder="Ingrese su nombre"
               value={nombres}
               onChange={(e) => setNombres(e.target.value)}
-              autoComplete="given-name"
             />
           </div>
 
           <div className="row">
             <label htmlFor="apellidos">Apellidos</label>
-            <input
-              type="text"
-              id="apellidos"
-              className="form-control input-control"
+            <input type="text" id="apellidos" className="form-control input-control"
               placeholder="Ingrese su apellido"
               value={apellidos}
               onChange={(e) => setApellidos(e.target.value)}
-              autoComplete="family-name"
             />
           </div>
 
           <div className="row">
             <label htmlFor="emailRegistro">Correo</label>
-            <input
-              type="email"
-              id="emailRegistro"
-              className="form-control input-control"
+            <input type="email" id="emailRegistro" className="form-control input-control"
               placeholder="Ingrese su correo"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
             />
           </div>
 
           <div className="row">
             <label htmlFor="fechaNac">Fecha de nacimiento</label>
-            <input
-              type="date"
-              id="fechaNac"
-              className="form-control input-control"
+            <input type="date" id="fechaNac" className="form-control input-control"
               value={fechaNac}
               onChange={(e) => setFechaNac(e.target.value)}
-              autoComplete="bday"
-              required
             />
           </div>
 
+          {/* CONTRASEÑA */}
           <div className="row">
             <label htmlFor="password1">Contraseña</label>
             <div className="input-group password-group">
@@ -104,26 +119,10 @@ export default function Registrarse() {
                 placeholder="Ingrese su contraseña"
                 value={password1}
                 onChange={(e) => setPassword1(e.target.value)}
-                autoComplete="new-password"
               />
-              <button
-                type="button"
-                className="btn btn-outline-brown toggle-password"
-                aria-label={showPass1 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                aria-pressed={showPass1}
-                onClick={() => setShowPass1(v => !v)}
-              >
-                {showPass1 ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" strokeWidth="2" d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Z" />
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" strokeWidth="2" d="M3 3l18 18" />
-                    <path stroke="currentColor" strokeWidth="2" d="M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.08A10.78 10.78 0 0112 5c5 0 9.27 3.11 11 7a12.7 12.7 0 01-4.1 4.73M6.12 7.27A12.69 12.69 0 001 12a12.7 12.7 0 004.1 4.73" />
-                  </svg>
-                )}
+              <button type="button" className="btn btn-outline-brown toggle-password"
+                onClick={() => setShowPass1(v => !v)}>
+                {showPass1 ? "Ocultar" : "Ver"}
               </button>
             </div>
           </div>
@@ -138,35 +137,17 @@ export default function Registrarse() {
                 placeholder="Ingrese su contraseña nuevamente"
                 value={password2}
                 onChange={(e) => setPassword2(e.target.value)}
-                autoComplete="new-password"
               />
-              <button
-                type="button"
-                className="btn btn-outline-brown toggle-password"
-                aria-label={showPass2 ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                aria-pressed={showPass2}
-                onClick={() => setShowPass2(v => !v)}
-              >
-                {showPass2 ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" strokeWidth="2" d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Z" />
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" strokeWidth="2" d="M3 3l18 18" />
-                    <path stroke="currentColor" strokeWidth="2" d="M10.58 10.58A3 3 0 0012 15a3 3 0 002.42-4.42M9.88 5.08A10.78 10.78 0 0112 5c5 0 9.27 3.11 11 7a12.7 12.7 0 01-4.1 4.73M6.12 7.27A12.69 12.69 0 001 12a12.7 12.7 0 004.1 4.73" />
-                  </svg>
-                )}
+              <button type="button" className="btn btn-outline-brown toggle-password"
+                onClick={() => setShowPass2(v => !v)}>
+                {showPass2 ? "Ocultar" : "Ver"}
               </button>
             </div>
           </div>
 
-          {error && (
-            <div id="errorRegistro" className="error-alert" role="alert">
-              {error}
-            </div>
-          )}
+          {/* MENSAJES */}
+          {error && <div className="error-alert">{error}</div>}
+          {success && <div className="success-alert">{success}</div>}
 
           <button type="submit">Enviar Registro</button>
 

@@ -1,8 +1,13 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../assets/imagenes/Mil Sabores.png'
+import useAuth from '../hooks/useAuth'
+import { logout } from '../services/logoutService'
 
 export default function Navbar({ cartCount = 0 }) {
+
+  const isLogged = useAuth(); // 👈 detectamos si hay token
+
   return (
     <header
       id="bannerArriba"
@@ -25,6 +30,8 @@ export default function Navbar({ cartCount = 0 }) {
           </div>
 
           <div className="col-12 col-md-4 d-flex justify-content-md-end justify-content-center gap-2">
+
+            {/* 🛒 CARRITO */}
             <Link
               to="/carrito"
               data-count={cartCount}
@@ -44,8 +51,25 @@ export default function Navbar({ cartCount = 0 }) {
               )}
             </Link>
 
-            <Link className="btn btn-white-choco" to="/login">Iniciar Sesión</Link>
-            <Link className="btn btn-white-choco" to="/registro">Crear Perfil</Link>
+            {/* 👇 MOSTRAR SEGÚN SI HAY TOKEN */}
+            {isLogged ? (
+              <>
+                <Link className="btn btn-white-choco" to="/admin">Admin</Link>
+
+                <button
+                  className="btn btn-white-choco"
+                  onClick={logout}
+                >
+                  Cerrar Sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link className="btn btn-white-choco" to="/login">Iniciar Sesión</Link>
+                <Link className="btn btn-white-choco" to="/registro">Crear Perfil</Link>
+              </>
+            )}
+
           </div>
 
         </div>
