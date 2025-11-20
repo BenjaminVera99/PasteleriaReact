@@ -5,9 +5,10 @@ import useAuth from '../hooks/useAuth'
 import { logout } from '../services/logoutService'
 import { jwtDecode } from "jwt-decode";
 
+
 export default function Navbar({ cartCount = 0 }) {
 
-  const isLogged = useAuth(); // 👈 detectamos si hay token
+  const isLogged = useAuth(); // detectamos si hay token
 
   return (
     <header
@@ -32,7 +33,7 @@ export default function Navbar({ cartCount = 0 }) {
 
           <div className="col-12 col-md-4 d-flex justify-content-md-end justify-content-center gap-2">
 
-            {/* 🛒 CARRITO */}
+            {/* CARRITO */}
             <Link
               to="/carrito"
               data-count={cartCount}
@@ -52,10 +53,10 @@ export default function Navbar({ cartCount = 0 }) {
               )}
             </Link>
 
-            {/* 👇 MOSTRAR SEGÚN SI HAY TOKEN */}
+            {/* MOSTRAR SEGÚN TOKEN */}
             {isLogged ? (
               <>
-                {/* 🔥 Obtener rol desde el token */}
+                {/* Rol ADMIN */}
                 {(() => {
                   try {
                     const token = localStorage.getItem("token");
@@ -70,7 +71,8 @@ export default function Navbar({ cartCount = 0 }) {
                   }
                 })()}
 
-                {/* Botón cerrar sesión */}
+                <Link className="btn btn-white-choco" to="/perfil">Mi Perfil</Link>
+
                 <button className="btn btn-white-choco" onClick={logout}>
                   Cerrar Sesión
                 </button>

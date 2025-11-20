@@ -12,6 +12,7 @@ import CompraExitosa from './paginas/CompraExitosa'
 import CompraError from './paginas/CompraError'
 import Ofertas from './paginas/Ofertas'
 import Admin from './paginas/Admin'
+import Perfil from "./paginas/Perfil";
 
 // ⭐ importación NUEVA
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -33,6 +34,9 @@ export default function App() {
         <Route path="/compra-exitosa" element={<CompraExitosa />} />
         <Route path="/compra-error" element={<CompraError />} />
         <Route path="/ofertas" element={<Ofertas />} />
+
+        <Route path="/perfil" element={<Perfil />}/>
+
 
         {/* ⭐ ahora admin está protegido por JWT */}
         <Route

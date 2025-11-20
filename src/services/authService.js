@@ -12,11 +12,14 @@ export const loginRequest = async (username, password) => {
 };
 
 
-export const registerUser = async (email, password) => {
+export const registerUser = async (email, password, nombres, apellidos, fechaNac) => {
   const response = await axios.post(`http://localhost:9090/auth/register`, {
     username: email,
-    password: password
+    password: password,
+    nombres,
+    apellidos,
+    fechaNac
   });
 
-  return response.data; // puede contener "message" o "error"
+  return response.data;
 };
