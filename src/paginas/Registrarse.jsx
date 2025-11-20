@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../componentes/Navbar'
 import '../Registrarse.css'
-import { registerUser } from '../services/authService'
+import { registerUser, loginRequest } from '../services/authService';
 
 export default function Registrarse() {
 
@@ -23,44 +23,46 @@ export default function Registrarse() {
   const [success, setSuccess] = useState('')
 
   // 👉 FUNCIÓN DE ENVÍO DEL FORMULARIO
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!nombres || !apellidos || !email || !password1 || !password2 || !fechaNac) {
-    setError('Por favor complete todos los campos');
-    return;
-  }
-
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailOk) {
-    setError('Ingresa un @ al correo');
+    setError("Por favor completa todos los campos");
     return;
   }
 
   if (password1 !== password2) {
-    setError('Las contraseñas no coinciden');
+    setError("Las contraseñas no coinciden");
     return;
   }
 
   try {
-    setError('');
+    const result = await registerUser(email, password1);
 
-    // 🔥 1) Registrar usuario en Spring Boot
-    await registerUser(email, password1);
+    // ⛔ Si el backend devuelve { error: "..." }
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
 
-    // 🔥 2) Login automático
+    // ✓ Registro OK → iniciar sesión automáticamente
     const token = await loginRequest(email, password1);
-
-    // 🔥 3) Guardar token
     localStorage.setItem("token", token);
 
-    // 🔥 4) Redirigir al Home ya logueado
     navigate("/");
 
   } catch (err) {
-    setError("Hubo un error al registrar el usuario");
+    // Aquí capturamos errores reales de red o backend
+    console.log(err);
+
+    if (err.response?.data?.error) {
+      setError(err.response.data.error); // mostrar mensaje correcto
+    } else {
+      setError("Error al registrar usuario");
+    }
   }
 };
+
 
 
 

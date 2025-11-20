@@ -8,8 +8,10 @@ export const loginRequest  = async (username, password) => {
 };
 
 export const registerUser = async (email, password) => {
-  return await axios.post(`${API_URL}/register`, {
+  const response = await axios.post(`http://localhost:9090/auth/register`, {
     username: email,
     password: password
   });
+
+  return response.data; // puede contener "message" o "error"
 };
