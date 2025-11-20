@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../assets/imagenes/Mil Sabores.png'
 import useAuth from '../hooks/useAuth'
 import { logout } from '../services/logoutService'
+import { jwtDecode } from "jwt-decode";
 
 export default function Navbar({ cartCount = 0 }) {
 
@@ -54,12 +55,23 @@ export default function Navbar({ cartCount = 0 }) {
             {/* 👇 MOSTRAR SEGÚN SI HAY TOKEN */}
             {isLogged ? (
               <>
-                <Link className="btn btn-white-choco" to="/admin">Admin</Link>
+                {/* 🔥 Obtener rol desde el token */}
+                {(() => {
+                  try {
+                    const token = localStorage.getItem("token");
+                    const decoded = jwtDecode(token);
+                    const role = decoded.role;
 
-                <button
-                  className="btn btn-white-choco"
-                  onClick={logout}
-                >
+                    return role === "ADMIN" ? (
+                      <Link className="btn btn-white-choco" to="/admin">Admin</Link>
+                    ) : null;
+                  } catch {
+                    return null;
+                  }
+                })()}
+
+                {/* Botón cerrar sesión */}
+                <button className="btn btn-white-choco" onClick={logout}>
                   Cerrar Sesión
                 </button>
               </>
