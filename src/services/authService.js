@@ -53,7 +53,8 @@ export const registerUser = async (userData) => {
     password: userData.password,
     nombres: userData.nombres,
     apellidos: userData.apellidos,
-    fechaNac: userData.fechaNac
+    fechaNac: userData.fechaNac,
+    direccion: userData.direccion
   });
 
   return response.data;
