@@ -6,7 +6,7 @@ export function getUserRole() {
 
   try {
     const decoded = jwtDecode(token);
-    return decoded.role; // ← debe venir del backend
+    return decoded.role;
   } catch (e) {
     return null;
   }

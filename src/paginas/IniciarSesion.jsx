@@ -23,17 +23,24 @@ export default function InicioSesion() {
     try {
       setError('')
 
-      // 🔥 LLAMADA AL BACKEND SPRING BOOT
-      const token = await loginRequest(email, password)
+      // 🔐 Llamada al backend (usa tu AuthController)
+      // loginRequest(email, password) debe hacer el POST a /auth/login
+      const { token, username, role } = await loginRequest(email, password)
 
-      // 🔥 PASO 8.2 → GUARDAR TOKEN JWT
-      localStorage.setItem("token", token)
+      if (!token) {
+        throw new Error('Respuesta inválida del servidor')
+      }
 
-      // 🔥 REDIRECCIÓN AUTOMÁTICA AL CRUD
-      navigate("/admin")  // ← cambia a la ruta de tu CRUD real
+      // 💾 Guardar datos de sesión
+      localStorage.setItem('token', token)
+      if (username) localStorage.setItem('username', username)
+      if (role) localStorage.setItem('role', role)
+
+      // 🚀 Ir al panel protegido (ajusta la ruta si tu CRUD es otra)
+      navigate('/admin')
 
     } catch (err) {
-      setError("Credenciales incorrectas")
+      setError('Credenciales incorrectas')
     }
   }
 
@@ -75,7 +82,7 @@ export default function InicioSesion() {
                 className="btn btn-outline-brown toggle-password"
                 onClick={() => setShowPassword(v => !v)}
               >
-                {showPassword ? "🙈" : "👁️"}
+                {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
           </div>
