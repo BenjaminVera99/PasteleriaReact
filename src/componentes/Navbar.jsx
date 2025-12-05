@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom'
 import logo from '../assets/imagenes/Mil Sabores.png'
 import useAuth from '../hooks/useAuth'
 import { logout } from '../services/logoutService'
-import { jwtDecode } from "jwt-decode";
-
 
 export default function Navbar({ cartCount = 0 }) {
 
   const isLogged = useAuth(); // detectamos si hay token
+
+  // ✅ Leer rol directamente desde localStorage
+  const role = localStorage.getItem("role");
+  const isAdmin = role === "ROLE_ADMIN";
 
   return (
     <header
@@ -56,20 +58,12 @@ export default function Navbar({ cartCount = 0 }) {
             {/* MOSTRAR SEGÚN TOKEN */}
             {isLogged ? (
               <>
-                {/* Rol ADMIN */}
-                {(() => {
-                  try {
-                    const token = localStorage.getItem("token");
-                    const decoded = jwtDecode(token);
-                    const role = decoded.role;
-
-                    return role === "ADMIN" ? (
-                      <Link className="btn btn-white-choco" to="/admin">Admin</Link>
-                    ) : null;
-                  } catch {
-                    return null;
-                  }
-                })()}
+                {/* ✅ Solo admins ven este botón */}
+                {isAdmin && (
+                  <Link className="btn btn-white-choco" to="/admin">
+                    Admin
+                  </Link>
+                )}
 
                 <Link className="btn btn-white-choco" to="/perfil">Mi Perfil</Link>
 
