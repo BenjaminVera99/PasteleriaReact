@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../componentes/Navbar';
 import '../IniciarSesion.css';
 import { loginRequest } from '../services/authService';
-import { useAuth } from '../context/AuthContext';
 
 export default function InicioSesion() {
   const [email, setEmail] = useState('');
