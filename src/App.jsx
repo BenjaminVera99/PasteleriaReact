@@ -12,9 +12,9 @@ import CompraExitosa from './paginas/CompraExitosa'
 import CompraError from './paginas/CompraError'
 import Ofertas from './paginas/Ofertas'
 import Admin from './paginas/Admin'
-import Perfil from "./paginas/Perfil";
+import Perfil from "./paginas/Perfil"
 
-// ⭐ importación NUEVA
+// ⭐ Protege rutas con sesión activa y/o rol
 import ProtectedRoute from './routes/ProtectedRoute'
 
 export default function App() {
@@ -28,17 +28,23 @@ export default function App() {
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/login" element={<InicioSesion />} />
-
         <Route path="/categorias" element={<Categorias />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/compra-exitosa" element={<CompraExitosa />} />
         <Route path="/compra-error" element={<CompraError />} />
         <Route path="/ofertas" element={<Ofertas />} />
 
-        <Route path="/perfil" element={<Perfil />}/>
+        {/* 🔐 Protegido: Solo usuario con sesión */}
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <Perfil />
+            </ProtectedRoute>
+          }
+        />
 
-
-        {/* ⭐ ahora admin está protegido por JWT */}
+        {/* 🔐 Protegido: Solo ADMIN */}
         <Route
           path="/admin"
           element={

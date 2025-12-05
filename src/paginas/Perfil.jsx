@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
-import api from "../services/api"; 
+import api from "../services/api";
 import Navbar from "../componentes/Navbar";
+import { useNavigate } from "react-router-dom";
 
 export default function Perfil() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
       try {
-        const response = await api.get("/auth/me");
+        const response = await api.get("/api/auth/me");
         setUser(response.data);
       } catch (err) {
         console.log("Error al obtener usuario:", err);
@@ -19,7 +27,7 @@ export default function Perfil() {
     };
 
     fetchUser();
-  }, []);
+  }, [navigate]);
 
   if (loading) return <p style={{ textAlign: "center", marginTop: "50px" }}>Cargando perfil...</p>;
 
@@ -28,10 +36,8 @@ export default function Perfil() {
   return (
     <>
       <Navbar />
-
       <div className="container mt-4">
         <h2 className="text-center mb-4">Mi Perfil</h2>
-
         <div className="card shadow p-4 mx-auto" style={{ maxWidth: "500px" }}>
           <p><strong>Nombre:</strong> {user.nombres}</p>
           <p><strong>Apellidos:</strong> {user.apellidos}</p>

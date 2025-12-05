@@ -1,157 +1,132 @@
-// src/paginas/Admin.jsx
-import React, { useEffect, useState } from 'react'
-import Navbar from '../componentes/Navbar'
-import Footer from '../componentes/Footer'
-import { getAllProducts, createProduct, deleteProduct, updateProduct } from '../services/productoService' 
 
-export default function Admin(){
-  const [items, setItems] = useState([]) 
-  const [loading, setLoading] = useState(true) 
-  const [editingId, setEditingId] = useState(null) 
-  
-  // Incluimos los campos de formulario originales, aunque el backend solo espera name/price/description
-  const [form, setForm] = useState({ 
-    name:'', 
-    price:'', 
-    category:'', 
-    onSale:false,
-  })
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../componentes/Navbar';
+import Footer from '../componentes/Footer';
+import { getAllProducts, createProduct, deleteProduct, updateProduct } from '../services/productoService'; 
 
-  // Función de utilería para mapear la descripción a los campos de formulario (para la edición)
-  const parseDescriptionToForm = (description) => {
-      const categoryMatch = description.match(/Categoría: ([^.]+)/);
-      const onSaleMatch = description.match(/Oferta: (Sí|No)/);
-      return {
-          category: categoryMatch ? categoryMatch[1].trim() : '',
-          onSale: onSaleMatch ? onSaleMatch[1] === 'Sí' : false,
-      };
-  };
-
-  // Función GET: Carga los datos de la API
-  const reload = async () => {
-    setLoading(true)
-    try {
-      const data = await getAllProducts()
-      setItems(data)
-    } catch (error) {
-      console.error("Error al cargar productos desde la API:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+export default function Admin() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ name:'', price:'', category:'', onSale:false });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    reload()
-  }, [])
+    const role = localStorage.getItem("role");
+    if (role !== "ADMIN") navigate("/");
+  }, [navigate]);
 
-  // Carga los datos del producto en el formulario
+  const parseDescriptionToForm = (description) => {
+    const categoryMatch = description.match(/Categoría: ([^.]+)/);
+    const onSaleMatch = description.match(/Oferta: (Sí|No)/);
+    return {
+      category: categoryMatch ? categoryMatch[1].trim() : '',
+      onSale: onSaleMatch ? onSaleMatch[1] === 'Sí' : false,
+    };
+  };
+
+  const reload = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllProducts();
+      setItems(data);
+    } catch (error) {
+      console.error("Error al cargar productos desde la API:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    reload();
+  }, []);
+
   const handleEdit = (product) => {
     const { category, onSale } = parseDescriptionToForm(product.description || '');
+    setForm({ name: product.name, price: product.price, category, onSale });
+    setEditingId(product.id);
+  };
 
-    setForm({ 
-        name: product.name,
-        price: product.price,
-        category: category,
-        onSale: onSale,
-    })
-    setEditingId(product.id)
-  }
-
-  // Manejador POST/PUT: Crea o Actualiza
-  const handleSubmit = async (e) => { 
-    e.preventDefault()
-
-    // Mapear datos a la estructura que espera la API de Spring Boot (name, price, description)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const productToSend = {
       name: form.name,
-      price: Number(form.price), 
-      // Construye la descripción con los campos extras
+      price: Number(form.price),
       description: `Categoría: ${form.category || 'N/A'}. Oferta: ${form.onSale ? 'Sí' : 'No'}`
-    }
+    };
 
     try {
       if (editingId) {
-        // LÓGICA DE ACTUALIZACIÓN (PUT)
-        await updateProduct(editingId, productToSend)
-        alert(`Producto #${editingId} actualizado con éxito.`)
+        await updateProduct(editingId, productToSend);
+        alert(`Producto #${editingId} actualizado con éxito.`);
       } else {
-        // LÓGICA DE CREACIÓN (POST)
-        await createProduct(productToSend) 
-        alert(`Producto "${form.name}" creado con éxito.`)
+        await createProduct(productToSend);
+        alert(`Producto "${form.name}" creado con éxito.`);
       }
-      
-      // Limpiar y resetear
-      setForm({ name:'', price:'', category:'', onSale:false })
-      setEditingId(null)
-      reload()
-      
+      setForm({ name:'', price:'', category:'', onSale:false });
+      setEditingId(null);
+      reload();
     } catch (error) {
-      console.error(`Error al ${editingId ? 'actualizar' : 'crear'} el producto:`, error)
-      alert(`Error al ${editingId ? 'actualizar' : 'crear'} el producto. Revisa la consola para más detalles del Backend.`)
+      console.error(`Error al ${editingId ? 'actualizar' : 'crear'} el producto:`, error);
+      alert(`Error al ${editingId ? 'actualizar' : 'crear'} el producto. Revisa la consola para más detalles del Backend.`);
     }
-  }
+  };
 
-  // Manejador DELETE: Elimina un producto
-  const handleDelete = async (id) => { 
+  const handleDelete = async (id) => {
     if (window.confirm(`¿Seguro que quieres eliminar el producto #${id}?`)) {
       try {
-        await deleteProduct(id) 
-        reload() 
+        await deleteProduct(id);
+        reload();
       } catch (error) {
-        console.error("Error al eliminar el producto:", error)
-        alert("Error al eliminar el producto. Verifique los logs del Backend.")
+        console.error("Error al eliminar el producto:", error);
+        alert("Error al eliminar el producto. Verifique los logs del Backend.");
       }
     }
-  }
-  
-  // Función para cancelar la edición
+  };
+
   const handleCancelEdit = () => {
     setEditingId(null);
     setForm({ name: '', price: '', category: '', onSale: false });
-  }
+  };
 
-  // --- Lógica de Renderizado ---
   return (
     <>
       <Navbar />
       <main className="container py-4">
         <h1 className="brand-title mb-3">Panel Administrativo</h1>
 
-        {/* Formulario de Creación/Edición */}
         <form className="card pastel-card p-3 mb-3" onSubmit={handleSubmit}>
           <h2 className="h5 text-choco mb-3">{editingId ? `Editando Producto #${editingId}` : 'Crear Nuevo Producto'}</h2>
-          
           <div className="row g-2">
             <div className="col-md-4">
-              <input className="form-control input-control" placeholder="Nombre" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required/>
+              <input className="form-control input-control" placeholder="Nombre" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
             </div>
             <div className="col-md-2">
-              <input className="form-control input-control" type="number" step="0.01" placeholder="Precio" value={form.price} onChange={e=>setForm({...form,price:e.target.value})} required/>
+              <input className="form-control input-control" type="number" step="0.01" placeholder="Precio" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required />
             </div>
             <div className="col-md-4">
-              <input className="form-control input-control" placeholder="Categoría" value={form.category} onChange={e=>setForm({...form,category:e.target.value})}/>
+              <input className="form-control input-control" placeholder="Categoría" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} />
             </div>
             <div className="col-md-2 d-flex align-items-center gap-2">
-              <input id="onSale" type="checkbox" checked={form.onSale} onChange={e=>setForm({...form,onSale:e.target.checked})}/>
+              <input id="onSale" type="checkbox" checked={form.onSale} onChange={e => setForm({ ...form, onSale: e.target.checked })} />
               <label htmlFor="onSale" className="m-0">Oferta</label>
             </div>
           </div>
           <div className="d-flex gap-2 mt-2">
-             <button type="submit" className="btn btn-white-choco">
-                 {editingId ? 'Guardar Cambios' : 'Crear Producto'}
-             </button>
-             {editingId && (
-                <button type="button" className="btn btn-outline-secondary" onClick={handleCancelEdit}>
-                    Cancelar Edición
-                </button>
-             )}
+            <button type="submit" className="btn btn-white-choco">
+              {editingId ? 'Guardar Cambios' : 'Crear Producto'}
+            </button>
+            {editingId && (
+              <button type="button" className="btn btn-outline-secondary" onClick={handleCancelEdit}>
+                Cancelar Edición
+              </button>
+            )}
           </div>
         </form>
 
-        {/* Listado de Productos */}
         <div className="card pastel-card p-3">
           <h2 className="h5 text-choco">Productos</h2>
-          
           {loading ? (
             <p className="text-center">Cargando productos...</p>
           ) : (
@@ -164,20 +139,10 @@ export default function Admin(){
                       <td>{p.id}</td>
                       <td>{p.name}</td>
                       <td>${p.price}</td>
-                      <td>{p.description}</td> 
+                      <td>{p.description}</td>
                       <td>
-                        <button 
-                            className="btn btn-outline-brown btn-sm me-2" 
-                            onClick={()=>handleEdit(p)}
-                        >
-                            Editar
-                        </button>
-                        <button 
-                            className="btn btn-outline-danger btn-sm" 
-                            onClick={()=>handleDelete(p.id)}
-                        >
-                            Eliminar
-                        </button>
+                        <button className="btn btn-outline-brown btn-sm me-2" onClick={() => handleEdit(p)}>Editar</button>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(p.id)}>Eliminar</button>
                       </td>
                     </tr>
                   ))}
@@ -189,5 +154,5 @@ export default function Admin(){
       </main>
       <Footer />
     </>
-  )
+  );
 }

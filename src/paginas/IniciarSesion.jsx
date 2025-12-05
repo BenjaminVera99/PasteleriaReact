@@ -1,41 +1,44 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import Navbar from '../componentes/Navbar'
-import '../IniciarSesion.css'
-import { loginRequest } from '../services/authService'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../componentes/Navbar';
+import '../IniciarSesion.css';
+import { loginRequest } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 export default function InicioSesion() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!email || !password) {
-      setError('Por favor ingrese correo y contraseña')
-      return
+      setError('Por favor ingrese correo y contraseña');
+      return;
     }
 
     try {
-      setError('')
+      setError('');
 
-      // 🔥 LLAMADA AL BACKEND SPRING BOOT
-      const token = await loginRequest(email, password)
+      const token = await loginRequest(email, password);
+      login(token); // actualiza el contexto y guarda token
 
-      // 🔥 PASO 8.2 → GUARDAR TOKEN JWT
-      localStorage.setItem("token", token)
-
-      // 🔥 REDIRECCIÓN AUTOMÁTICA AL CRUD
-      navigate("/admin")  // ← cambia a la ruta de tu CRUD real
+      const decoded = JSON.parse(atob(token.split('.')[1]));
+      if (decoded.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/perfil");
+      }
 
     } catch (err) {
-      setError("Credenciales incorrectas")
+      setError("Credenciales incorrectas");
     }
-  }
+  };
 
   return (
     <>
@@ -94,5 +97,5 @@ export default function InicioSesion() {
         </form>
       </section>
     </>
-  )
+  );
 }
