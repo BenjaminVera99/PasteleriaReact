@@ -1,31 +1,23 @@
 import axios from "axios";
 
-// ✅ API base (con /api incluido)
-const API_BASE_URL = "http://localhost:9090/api/auth";
-
+const API_URL = "http://localhost:9090/auth";
 
 export const loginRequest = async (username, password) => {
-  const response = await axios.post(`${API_BASE_URL}/login`, {
-    username,
-    password,
-  });
+  const response = await axios.post(`${API_URL}/login`, { username, password });
 
-  const { token, role } = response.data;
+  // Guarda el rol también
+  localStorage.setItem("role", response.data.role);
 
-  // Guardamos el token y el rol
-  localStorage.setItem("token", token);
-  localStorage.setItem("role", role);
-
-  return token;
+  return response.data.token;
 };
 
-export const registerUser = async (userData) => {
-  const response = await axios.post(`${API_BASE_URL}/register`, {
-    username: userData.username,
-    password: userData.password,
-    nombres: userData.nombres,
-    apellidos: userData.apellidos,
-    fechaNac: userData.fechaNac,
+export const registerUser = async (email, password, nombres, apellidos, fechaNac) => {
+  const response = await axios.post(`http://localhost:9090/auth/register`, {
+    username: email,
+    password: password,
+    nombres,
+    apellidos,
+    fechaNac
   });
 
   return response.data;

@@ -4,9 +4,6 @@ import Navbar from '../componentes/Navbar';
 import Footer from '../componentes/Footer';
 import { readCart, writeCart } from '../utils/cart.js';
 import logoUrl from '../assets/Imagenes/Mil Sabores.png';
-import { useNavigate } from 'react-router-dom';
-
-const API_IMAGE_BASE_URL = "http://localhost:9090";
 
 const toCLP = (n) =>
   Number(n || 0).toLocaleString('es-CL', {
@@ -19,12 +16,6 @@ export default function Carrito() {
   const [items, setItems] = useState([]);
   const [envio, setEnvio] = useState({ fecha: '', franja: 'Lo antes posible' });
   const [loaded, setLoaded] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/login");
-  }, [navigate]);
 
   useEffect(() => {
     setItems(readCart());
@@ -62,7 +53,11 @@ export default function Carrito() {
   };
 
   const remove = (id) => {
+    // Eliminar del estado
     setItems(prev => prev.filter(it => it.id !== id));
+    
+    // Eliminar del localStorage
+    removeProduct(id);
   };
 
   const clear = () => setItems([]);
@@ -80,11 +75,6 @@ export default function Carrito() {
   };
 
   const handleGenerarBoleta = async () => {
-    if (items.length === 0) {
-      alert("El carrito está vacío");
-      return;
-    }
-
     try {
       const { generarBoleta } = await import('../utils/boleta.js');
       let cliente = {};
@@ -92,25 +82,13 @@ export default function Carrito() {
         const rawUser = localStorage.getItem('ms_user');
         if (rawUser) cliente = JSON.parse(rawUser);
       } catch {}
-      const numero = `PED${Date.now().toString().slice(-6)}`;
+      const numero = String(Date.now()).slice(-8);
       const fecha = new Date().toLocaleString('es-CL');
       await generarBoleta({ numero, fecha, cliente, items, envio, total, logoUrl });
-
-      alert(`Boleta generada con éxito\nNúmero de pedido: ${numero}`);
     } catch (err) {
       console.error('Error generando boleta:', err);
       alert('No se pudo generar la boleta. Revisa la consola para más detalles.');
     }
-  };
-
-  const handleFinalizarCompra = () => {
-    if (items.length === 0) {
-      alert("No hay productos en el carrito");
-      return;
-    }
-    clear();
-    alert("Pedido confirmado. ¡Gracias por tu compra!");
-    navigate("/catalogo");
   };
 
   return (
@@ -141,7 +119,7 @@ export default function Carrito() {
                     <td>{it.code ?? it.id}</td>
                     <td>
                       <img
-                        src={`${API_IMAGE_BASE_URL}${it.img || '/assets/imagenes/placeholder.jpg'}`}
+                        src={it.img || '/assets/imagenes/placeholder.jpg'}
                         alt={it.name || it.nombre}
                         width="50"
                         style={{ borderRadius: '8px' }}
@@ -151,13 +129,31 @@ export default function Carrito() {
                     <td>{it.name || it.nombre}</td>
                     <td>{toCLP(it.price ?? it.precio)}</td>
                     <td>
-                      <button className="btn btn-outline-brown" onClick={() => dec(it.id)} style={{ borderRadius: '50%', padding: '0 10px' }}>−</button>
+                      <button
+                        className="btn btn-outline-brown"
+                        onClick={() => dec(it.id)}
+                        style={{ borderRadius: '50%', padding: '0 10px' }}
+                      >
+                        −
+                      </button>
                       <span style={{ margin: '0 8px', fontWeight: 'bold' }}>{it.qty || 1}</span>
-                      <button className="btn btn-outline-brown" onClick={() => inc(it.id)} style={{ borderRadius: '50%', padding: '0 10px' }}>+</button>
+                      <button
+                        className="btn btn-outline-brown"
+                        onClick={() => inc(it.id)}
+                        style={{ borderRadius: '50%', padding: '0 10px' }}
+                      >
+                        +
+                      </button>
                     </td>
                     <td>{toCLP((it.price ?? it.precio ?? 0) * (it.qty || 1))}</td>
                     <td>
-                      <button className="btn btn-white-choco" onClick={() => remove(it.id)} style={{ borderRadius: '5px', padding: '2px 6px' }}>Eliminar</button>
+                      <button
+                        className="btn btn-white-choco"
+                        onClick={() => remove(it.id)}
+                        style={{ borderRadius: '5px', padding: '2px 6px' }}
+                      >
+                        Eliminar
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -169,7 +165,6 @@ export default function Carrito() {
               <div className="d-flex gap-2">
                 <button className="btn btn-outline-brown" onClick={clear}>Vaciar carrito</button>
                 <button className="btn btn-white-choco" onClick={handleGenerarBoleta}>Ver / Imprimir boleta</button>
-                <button className="btn btn-brown" onClick={handleFinalizarCompra}>Finalizar compra</button>
               </div>
             </div>
 
@@ -197,6 +192,7 @@ export default function Carrito() {
           </>
         )}
       </main>
+
       <Footer />
     </>
   );

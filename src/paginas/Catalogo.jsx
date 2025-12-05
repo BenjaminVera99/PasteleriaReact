@@ -1,90 +1,81 @@
-// =============================
-// src/pages/Catalogo.jsx (LIMPIO Y FINAL)
-// =============================
-import React, { useMemo, useState, useEffect } from 'react';
-import Navbar from '../componentes/Navbar';
-import Footer from '../componentes/Footer';
-import { addItem } from '../utils/cart.js';
-import '../Catalogo.css';
-import { getAllProducts } from '../services/productoService.js'; 
+// src/paginas/Catalogo.jsx
+import React, { useMemo, useState, useEffect } from 'react'
+import Navbar from '../componentes/Navbar'
+import Footer from '../componentes/Footer'
+import { addItem } from '../utils/cart.js'
+import '../Catalogo.css'
 
-export default function Catalogo() {
-  const API_IMAGE_BASE_URL = "http://localhost:9090"; 
+// 👉 Usamos tu API local con persistencia en localStorage
+import { getAll } from '../data/productos.js'
 
-  const [categoria, setCategoria] = useState('all');
-  const [buscar, setBuscar] = useState('');
-  const [sort, setSort] = useState('priceAsc');
-  const [perPage, setPerPage] = useState(9);
-  const [page, setPage] = useState(1);
-  const [adding, setAdding] = useState({});
-  const [productos, setProductos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function Catalogo({ onAddToCart = null }) {
+  // ===== Estado UI =====
+  const [categoria, setCategoria] = useState('all')
+  const [buscar, setBuscar] = useState('')
+  const [sort, setSort] = useState('priceAsc')  // 'priceAsc' | 'priceDesc'
+  const [perPage, setPerPage] = useState(9)     // 9 | 12 | 15
+  const [page, setPage] = useState(1)           // 1-based
+  const [adding, setAdding] = useState({})      // { [id]: true }
+  const [productos, setProductos] = useState([])
 
+  // Cargar productos desde tu fuente local (seed + localStorage)
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await getAllProducts(); 
-        setProductos(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Error al cargar productos de la API:", err);
-        setError("No se pudieron cargar los productos. Por favor, verifica que la API esté corriendo.");
-        setProductos([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+    const data = getAll() // [{ id, name, price, category, img, onSale }, ...]
+    setProductos(Array.isArray(data) ? data : [])
+  }, [])
 
-  useEffect(() => { setPage(1) }, [categoria, buscar, perPage]);
+  // Resetear a página 1 si cambian filtros/búsqueda/perPage
+  useEffect(() => { setPage(1) }, [categoria, buscar, perPage])
 
   const handleAdd = (p) => {
-    addItem(p, 1);
-    setAdding(prev => ({ ...prev, [p.id]: true }));
+    // usa SIEMPRE el helper unificado
+    const nuevo = addItem(p, 1)
+    console.log('[Catalogo] cart actualizado:', nuevo) // ← para verificar
+
+    setAdding(prev => ({ ...prev, [p.id]: true }))
     setTimeout(() => {
       setAdding(prev => {
-        const copy = { ...prev };
-        delete copy[p.id];
-        return copy;
-      });
-    }, 1000);
-  };
+        const copy = { ...prev }
+        delete copy[p.id]
+        return copy
+      })
+    }, 1000)
+  }
 
+  // Categorías disponibles (derivadas de tus productos)
   const categorias = useMemo(() => {
-    const set = new Set(productos.map(p => p.category).filter(Boolean));
+    const set = new Set(productos.map(p => p.category).filter(Boolean))
     return [{ value: 'all', label: 'Todas' }, ...Array.from(set).map(c => ({ value: c, label: c }))]
-  }, [productos]);
+  }, [productos])
 
+  // ===== Filtrar -> Ordenar -> Paginar =====
   const filtrados = useMemo(() => {
-    const q = buscar.trim().toLowerCase();
+    const q = buscar.trim().toLowerCase()
     return productos.filter(p => {
-      const byCat = categoria === 'all' || p.category === categoria;
-      const byText = !q || (p.name || '').toLowerCase().includes(q);
-      return byCat && byText;
+      const byCat = categoria === 'all' || p.category === categoria
+      const byText = !q || (p.name || '').toLowerCase().includes(q)
+      return byCat && byText
     })
-  }, [productos, categoria, buscar]);
+  }, [productos, categoria, buscar])
 
   const ordenados = useMemo(() => {
-    const arr = [...filtrados];
-    if (sort === 'priceAsc') arr.sort((a, b) => (a.price || 0) - (b.price || 0));
-    if (sort === 'priceDesc') arr.sort((a, b) => (b.price || 0) - (a.price || 0));
-    return arr;
-  }, [filtrados, sort]);
+    const arr = [...filtrados]
+    if (sort === 'priceAsc') arr.sort((a, b) => (a.price || 0) - (b.price || 0))
+    if (sort === 'priceDesc') arr.sort((a, b) => (b.price || 0) - (a.price || 0))
+    return arr
+  }, [filtrados, sort])
 
-  const totalItems = ordenados.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
-  const currentPage = Math.min(page, totalPages);
-  const startIdx = (currentPage - 1) * perPage;
-  const pageItems = ordenados.slice(startIdx, startIdx + perPage);
+  const totalItems = ordenados.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / perPage))
+  const currentPage = Math.min(page, totalPages)
+  const startIdx = (currentPage - 1) * perPage
+  const pageItems = ordenados.slice(startIdx, startIdx + perPage)
 
   const toCLP = (n) =>
-    Number(n || 0).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+    Number(n || 0).toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
 
-  const goPrev = () => setPage(p => Math.max(1, p - 1));
-  const goNext = () => setPage(p => Math.min(totalPages, p + 1));
+  const goPrev = () => setPage(p => Math.max(1, p - 1))
+  const goNext = () => setPage(p => Math.min(totalPages, p + 1))
 
   return (
     <>
@@ -93,6 +84,7 @@ export default function Catalogo() {
       <main className="container py-4">
         <h1 className="text-center brand-title mb-3">Catálogo de Productos</h1>
 
+        {/* Controles */}
         <section className="catalog-controls">
           <div className="row g-2 align-items-end">
             <div className="col-12 col-md-4">
@@ -102,6 +94,7 @@ export default function Catalogo() {
                 className="form-select input-control"
                 value={categoria}
                 onChange={(e) => setCategoria(e.target.value)}
+                aria-label="Filtro por categoría"
               >
                 {categorias.map(c => (
                   <option key={c.value} value={c.value}>{c.label}</option>
@@ -118,6 +111,7 @@ export default function Catalogo() {
                 placeholder="Ej: tres leches, vegano, selva..."
                 value={buscar}
                 onChange={(e) => setBuscar(e.target.value)}
+                aria-label="Buscar por nombre"
               />
             </div>
 
@@ -128,6 +122,7 @@ export default function Catalogo() {
                 className="form-select input-control"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
+                aria-label="Ordenar por precio"
               >
                 <option value="priceAsc">Precio: menor a mayor</option>
                 <option value="priceDesc">Precio: mayor a menor</option>
@@ -141,6 +136,7 @@ export default function Catalogo() {
                 className="form-select input-control"
                 value={perPage}
                 onChange={(e) => setPerPage(Number(e.target.value))}
+                aria-label="Ítems por página"
               >
                 <option value={9}>9</option>
                 <option value={12}>12</option>
@@ -149,28 +145,28 @@ export default function Catalogo() {
             </div>
           </div>
 
+          {/* Resumen */}
           <div className="d-flex justify-content-between align-items-center mt-2 text-choco">
             <small>Mostrando <strong>{pageItems.length}</strong> de <strong>{totalItems}</strong> productos</small>
             <small>Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong></small>
           </div>
         </section>
 
-        <section className="mt-3">
-          {isLoading && <p className="text-center text-choco mt-4">Cargando productos...</p>}
-          {error && <p className="text-center text-danger mt-4">Error: {error}</p>}
-
-          {!isLoading && !error && pageItems.length === 0 ? (
+        {/* Grid */}
+        <section className="mt-3" aria-live="polite" aria-busy="false">
+          {pageItems.length === 0 ? (
             <p className="text-center text-choco mt-4">No encontramos productos con esos filtros.</p>
           ) : (
             <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
               {pageItems.map((p) => (
                 <div key={p.id} className="col">
                   <article className="card pastel-card h-100">
-                    {adding[p.id] && <span className="add-pill">Agregado ✅</span>}
+                    {/* Pill feedback */}
+                    {adding[p.id] && <span className="add-pill" aria-live="polite">Agregado ✅</span>}
 
                     <div className="ratio ratio-4x3 pastel-card__imgwrap">
                       <img
-                        src={`${API_IMAGE_BASE_URL}${p.img}`} 
+                        src={p.img}
                         alt={p.name}
                         className="pastel-card__img"
                         onError={(e) => { e.currentTarget.src = '/assets/imagenes/placeholder.jpg' }}
@@ -199,8 +195,9 @@ export default function Catalogo() {
           )}
         </section>
 
+        {/* Paginación */}
         {totalPages > 1 && (
-          <nav className="catalog-pagination d-flex justify-content-center align-items-center gap-2 mt-3">
+          <nav className="catalog-pagination d-flex justify-content-center align-items-center gap-2 mt-3" aria-label="Paginación de productos">
             <button className="btn btn-outline-brown" onClick={goPrev} disabled={currentPage === 1}>← Anterior</button>
             <span className="text-choco mx-2">{currentPage} / {totalPages}</span>
             <button className="btn btn-outline-brown" onClick={goNext} disabled={currentPage === totalPages}>Siguiente →</button>
@@ -210,5 +207,5 @@ export default function Catalogo() {
 
       <Footer />
     </>
-  );
+  )
 }
